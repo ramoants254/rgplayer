@@ -1,4 +1,5 @@
 #include <QGuiApplication>
+#include <QIcon>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
 #include <QQuickWindow>
@@ -23,6 +24,8 @@ int main(int argc, char *argv[])
     app.setApplicationVersion(QStringLiteral("0.1.0"));
     app.setOrganizationName(QStringLiteral("rgplayer"));
     app.setOrganizationDomain(QStringLiteral("rgplayer.local"));
+    app.setWindowIcon(QIcon::fromTheme(QStringLiteral("rgplayer"),
+                                       QIcon(QStringLiteral(":/qt/qml/Rgplayer/resources/rgplayer.svg"))));
 
     MpvWrapper mpv;
     PlayerController playerController(&mpv);

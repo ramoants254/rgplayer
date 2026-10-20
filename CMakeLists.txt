@@ -42,6 +42,8 @@ qt_add_qml_module(rgplayer
         qml/components/ThemeCheckBox.qml
         qml/components/ThemeSlider.qml
         qml/components/ThemeButton.qml
+    RESOURCES
+        resources/rgplayer.svg
     SOURCES
         src/core/mpv_render_item.cpp
         src/core/mpv_render_item.h
@@ -62,6 +64,7 @@ install(TARGETS rgplayer
 )
 
 install(FILES resources/rgplayer.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+install(FILES resources/rgplayer.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps)
 install(FILES resources/rgplayer.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/mime/packages)
 install(FILES resources/org.rgplayer.rgplayer.metainfo.xml
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)

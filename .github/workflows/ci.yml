@@ -21,7 +21,6 @@ jobs:
           version: 6.8.2
           host: linux
           target: desktop
-          modules: qtquick
           cache: true
 
       - name: Configure

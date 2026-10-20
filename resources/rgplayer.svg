@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background rounded gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#24262b" />
+      <stop offset="50%" stop-color="#18191d" />
+      <stop offset="100%" stop-color="#0e0f11" />
+    </linearGradient>
+
+    <!-- Accent orange gradient -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff7b00" />
+      <stop offset="100%" stop-color="#ff4400" />
+    </linearGradient>
+
+    <!-- Inner glow for play symbol -->
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffa040" />
+      <stop offset="100%" stop-color="#ff5500" />
+    </linearGradient>
+
+    <!-- Subtle border highlight -->
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3a3d45" />
+      <stop offset="100%" stop-color="#16171a" />
+    </linearGradient>
+
+    <!-- Drop shadow -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+
+    <filter id="playGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#ff5500" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Base squircle -->
+  <rect x="8" y="8" width="112" height="112" rx="26" ry="26" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="2" filter="url(#shadow)" />
+
+  <!-- Outer circular track (subtle audio/video ring) -->
+  <circle cx="64" cy="64" r="38" fill="none" stroke="#252830" stroke-width="3" stroke-dasharray="140 25" stroke-linecap="round" />
+  <circle cx="64" cy="64" r="38" fill="none" stroke="url(#accentGrad)" stroke-width="3" stroke-dasharray="55 180" stroke-dashoffset="-20" stroke-linecap="round" />
+
+  <!-- Center Play triangle symbol with rounded corners -->
+  <path d="M 54 44 
+           C 54 41.5, 56.8 40, 59 41.2 
+           L 85 57.2 
+           C 87.2 58.5, 87.2 61.5, 85 62.8 
+           L 59 78.8 
+           C 56.8 80, 54 78.5, 54 76 Z"
+        fill="url(#glowGrad)" 
+        filter="url(#playGlow)" />
+</svg>
