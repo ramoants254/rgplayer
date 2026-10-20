@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.rgplayer.rgplayer</id>
+  <name>rgplayer</name>
+  <summary>Keyboard-driven Linux media player</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <launchable type="desktop-id">rgplayer.desktop</launchable>
+  <provides><binary>rgplayer</binary></provides>
+</component>

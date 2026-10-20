@@ -1,0 +1,20 @@
+/build/
+/out/
+.cache/
+.clangd/
+compile_commands.json
+
+# Qt and IDE generated files
+*.user
+*.qmlc
+*.jsc
+*.autosave
+
+
+# Media and test sample files
+*.mp4
+*.mkv
+*.webm
+*.avi
+*.mov
+*.ts

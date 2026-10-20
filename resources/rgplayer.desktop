@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=rgplayer
+Comment=Keyboard-driven media player
+Exec=rgplayer %U
+Icon=rgplayer
+Terminal=false
+Type=Application
+Categories=AudioVideo;Player;Qt;
+MimeType=video/mp4;video/x-matroska;video/webm;audio/mpeg;audio/flac;audio/wav;
+StartupNotify=true

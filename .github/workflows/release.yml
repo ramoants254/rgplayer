@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deb:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install --yes cmake ninja-build g++ pkg-config libmpv-dev mpv
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.2
+          host: linux
+          target: desktop
+          modules: qtquick
+          cache: true
+      - name: Configure
+        run: cmake --preset release
+      - name: Build package
+        run: cmake --build --preset release --target package
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: rgplayer-deb
+          path: build/release/*.deb
