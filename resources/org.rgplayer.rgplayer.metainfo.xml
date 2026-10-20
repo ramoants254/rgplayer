@@ -5,7 +5,7 @@
   <summary>A fast, modern, keyboard-driven Linux media player</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-  <developer id="com.tndezwa">
+  <developer id="com.ndezwat">
     <name>Tony Ndezwa</name>
   </developer>
 
@@ -29,7 +29,7 @@
 
   <url type="homepage">https://github.com/ramoants254/rgplayer</url>
   <url type="bugtracker">https://github.com/ramoants254/rgplayer/issues</url>
-  <url type="donation">https://buymeacoffee.com/tndezwa</url>
+  <url type="donation">https://buymeacoffee.com/ndezwat</url>
 
   <provides>
     <binary>rgplayer</binary>

@@ -3,7 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Qt 6](https://img.shields.io/badge/Qt-6.8+-41CD52.svg?logo=qt&logoColor=white)](https://www.qt.io/)
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg?logo=c%2B%2B)](https://en.cppreference.com/w/cpp/20)
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Tony%20Ndezwa-FFDD00.svg?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/tndezwa)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Tony%20Ndezwa-FFDD00.svg?logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/ndezwat)
 
 A fast, modern, and lightweight Linux media player with a sleek dark aesthetic, built clean-room using **Qt 6 (QML)** and **libmpv**.
 
@@ -127,7 +127,7 @@ Created by **Tony Ndezwa**.
 
 If you enjoy using `rgplayer` or find it helpful, consider supporting the project:
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Support%20on-Buy%20Me%20A%20Coffee-orange?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/tndezwa)
+[![Buy Me A Coffee](https://img.shields.io/badge/Support%20on-Buy%20Me%20A%20Coffee-orange?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/ndezwat)
 
 ---
 
