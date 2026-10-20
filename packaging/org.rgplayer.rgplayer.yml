@@ -3,12 +3,26 @@ runtime: org.kde.Platform
 runtime-version: "6.8"
 sdk: org.kde.Sdk
 command: rgplayer
+
 finish-args:
+  # Display and audio
   - --share=ipc
   - --socket=wayland
   - --socket=fallback-x11
   - --socket=pulseaudio
   - --device=dri
+  # Media file access
+  - --filesystem=host:ro
+  - --filesystem=home
+  # Desktop integration: MPRIS2 media keys & screensaver inhibit
+  - --talk-name=org.freedesktop.ScreenSaver
+  - --own-name=org.mpris.MediaPlayer2.rgplayer
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/man
+
 modules:
   - name: rgplayer
     buildsystem: cmake-ninja

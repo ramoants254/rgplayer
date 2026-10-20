@@ -2,9 +2,46 @@
 <component type="desktop-application">
   <id>org.rgplayer.rgplayer</id>
   <name>rgplayer</name>
-  <summary>Keyboard-driven Linux media player</summary>
+  <summary>A fast, modern, keyboard-driven Linux media player</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
+  <developer id="com.tndezwa">
+    <name>Tony Ndezwa</name>
+  </developer>
+
+  <description>
+    <p>
+      rgplayer is a fast, clean-room Linux media player built on Qt 6 (QML) and libmpv.
+      It combines modern dark aesthetics with power-user playback controls inspired by classic desktop players.
+    </p>
+    <p>Key features include:</p>
+    <ul>
+      <li>Hardware-accelerated video decoding (VA-API, NVDEC) via libmpv.</li>
+      <li>Minimalist dark interface with auto-hiding gradient overlay controls.</li>
+      <li>Precision seeking with hover thumbnail previews.</li>
+      <li>A-B loop repetition, variable speed, and frame stepping.</li>
+      <li>Multi-track audio and subtitle selection.</li>
+      <li>Seamless MPRIS2 desktop integration for system media keys and player applets.</li>
+    </ul>
+  </description>
+
   <launchable type="desktop-id">rgplayer.desktop</launchable>
-  <provides><binary>rgplayer</binary></provides>
+
+  <url type="homepage">https://github.com/ramoants254/rgplayer</url>
+  <url type="bugtracker">https://github.com/ramoants254/rgplayer/issues</url>
+  <url type="donation">https://buymeacoffee.com/tndezwa</url>
+
+  <provides>
+    <binary>rgplayer</binary>
+  </provides>
+
+  <releases>
+    <release version="0.1.0" date="2026-10-20">
+      <description>
+        <p>Initial release of rgplayer featuring libmpv playback, modern QML UI, hover thumbnails, and MPRIS2 integration.</p>
+      </description>
+    </release>
+  </releases>
+
+  <content_rating type="oars-1.1" />
 </component>
