@@ -336,18 +336,31 @@ ApplicationWindow {
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
-        acceptedButtons: Qt.LeftButton
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         propagateComposedEvents: true
         cursorShape: playbackBar.revealed ? Qt.ArrowCursor : Qt.BlankCursor
         z: 1
         onPositionChanged: playbackBar.showTemporarily()
         onEntered: playbackBar.showTemporarily()
         // Double-click toggles fullscreen; single click ignored (propagated to items below)
-        onDoubleClicked: {
-            window.visibility = window.visibility === Window.FullScreen
-                ? Window.Windowed : Window.FullScreen
+        onDoubleClicked: function(mouse) {
+            if (mouse.button === Qt.LeftButton) {
+                window.visibility = window.visibility === Window.FullScreen
+                    ? Window.Windowed : Window.FullScreen
+            }
         }
-        onClicked: function(mouse) { mouse.accepted = false }
+        onClicked: function(mouse) {
+            if (mouse.button === Qt.RightButton) {
+                videoMenu.popup(mouse.x, mouse.y)
+            } else {
+                mouse.accepted = false
+            }
+        }
+    }
+
+    VideoContextMenu {
+        id: videoMenu
+        controller: playerController
     }
 
     DropArea {
@@ -451,6 +464,66 @@ ApplicationWindow {
                 checked: appSettings.reduceMotion
                 text: qsTr("Reduce motion")
                 onToggled: appSettings.reduceMotion = checked
+            }
+
+            // ── Recent Files ────────────────────────────────────────
+            Rectangle {
+                Layout.fillWidth: true
+                height: 1
+                color: Theme.border
+                visible: recentRepeater.count > 0
+            }
+
+            Label {
+                Layout.alignment: Qt.AlignHCenter
+                text: qsTr("Recent Files")
+                color: Theme.textMuted
+                font.pixelSize: 13
+                font.weight: Font.DemiBold
+                visible: recentRepeater.count > 0
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 4
+                visible: recentRepeater.count > 0
+
+                Repeater {
+                    id: recentRepeater
+                    model: playerController.recentFiles
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 30
+                        radius: Theme.controlRadius
+                        color: recentMouse.containsMouse ? Theme.surfaceRaised : "transparent"
+
+                        Label {
+                            anchors.fill: parent
+                            anchors.leftMargin: 10
+                            anchors.rightMargin: 10
+                            verticalAlignment: Text.AlignVCenter
+                            elide: Text.ElideLeft
+                            text: modelData.substring(modelData.lastIndexOf('/') + 1)
+                            color: recentMouse.containsMouse ? Theme.accent : Theme.text
+                            font.pixelSize: 12
+                        }
+
+                        MouseArea {
+                            id: recentMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: openMedia(modelData)
+                        }
+
+                        ToolTip {
+                            visible: recentMouse.containsMouse
+                            text: modelData
+                            delay: 600
+                        }
+                    }
+                }
             }
         }
     }

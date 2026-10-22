@@ -49,6 +49,7 @@ public slots:
     void setSubtitleOption(const char *property, const QString &value);
     void setAudioFilter(const QString &filter);
     void setVideoFilter(const QString &filter);
+    void setStringProperty(const char *property, const QString &value);
 
 signals:
     void initializedChanged(bool initialized);

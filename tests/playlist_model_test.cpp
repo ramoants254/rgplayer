@@ -69,6 +69,40 @@ private slots:
         QCOMPARE(model.rowCount(), 0);
         QCOMPARE(model.currentIndex(), -1);
     }
+
+    void navigationCyclesTracks()
+    {
+        PlaylistModel model;
+        model.addFile(QStringLiteral("/tmp/one.mp4"));
+        model.addFile(QStringLiteral("/tmp/two.mkv"));
+
+        QSignalSpy playSpy(&model, &PlaylistModel::playRequested);
+        model.playAt(0);
+        QCOMPARE(model.currentIndex(), 0);
+
+        model.playNext();
+        QCOMPARE(model.currentIndex(), 1);
+        QCOMPARE(playSpy.last().at(0).toString(), QStringLiteral("/tmp/two.mkv"));
+
+        model.playPrevious();
+        QCOMPARE(model.currentIndex(), 0);
+        QCOMPARE(playSpy.last().at(0).toString(), QStringLiteral("/tmp/one.mp4"));
+    }
+
+    void clearEmptiesListAndResetsIndex()
+    {
+        PlaylistModel model;
+        model.addFile(QStringLiteral("/tmp/one.mp4"));
+        model.addFile(QStringLiteral("/tmp/two.mkv"));
+        model.playAt(1);
+
+        QCOMPARE(model.count(), 2);
+        QCOMPARE(model.currentIndex(), 1);
+
+        model.clear();
+        QCOMPARE(model.count(), 0);
+        QCOMPARE(model.currentIndex(), -1);
+    }
 };
 
 QTEST_MAIN(PlaylistModelTest)

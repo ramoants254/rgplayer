@@ -275,6 +275,13 @@ void MpvWrapper::setVideoFilter(const QString &filter)
     sendCommand(arguments);
 }
 
+void MpvWrapper::setStringProperty(const char *property, const QString &value)
+{
+    const QByteArray encodedValue = value.toUtf8();
+    const char *arguments[] = {"set", property, encodedValue.constData(), nullptr};
+    sendCommand(arguments);
+}
+
 void MpvWrapper::processEvents()
 {
     if (handle_ == nullptr) {

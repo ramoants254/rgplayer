@@ -1,11 +1,19 @@
 #include "player_controller.h"
 
 #include <QDir>
+#include <QFile>
 #include <QSettings>
 #include <QTimer>
 #include <QUrl>
 
 #include "core/mpv_wrapper.h"
+
+namespace {
+QString resumeKeyForPath(const QString &filePath)
+{
+    return QStringLiteral("resume/%1").arg(QString::fromUtf8(QUrl::toPercentEncoding(filePath)));
+}
+} // namespace
 
 PlayerController::PlayerController(MpvWrapper *mpv, QObject *parent)
     : QObject(parent)
@@ -54,7 +62,7 @@ PlayerController::PlayerController(MpvWrapper *mpv, QObject *parent)
             return;
         }
         const double resumePosition = QSettings().value(
-            QStringLiteral("resume/%1").arg(currentFile_), 0.0).toDouble();
+            resumeKeyForPath(currentFile_), 0.0).toDouble();
         if (resumePosition > 1.0) {
             mpv_->seek(resumePosition);
         }
@@ -64,8 +72,14 @@ PlayerController::PlayerController(MpvWrapper *mpv, QObject *parent)
     resumeTimer_->setSingleShot(true);
     resumeTimer_->setInterval(500);
     connect(resumeTimer_, &QTimer::timeout, this, [this] {
-        if (!currentFile_.isEmpty() && position_ > 1.0) {
-            QSettings().setValue(QStringLiteral("resume/%1").arg(currentFile_), position_);
+        if (currentFile_.isEmpty()) {
+            return;
+        }
+        QSettings settings;
+        if (duration_ > 10.0 && position_ >= duration_ - 5.0) {
+            settings.remove(resumeKeyForPath(currentFile_));
+        } else if (position_ > 1.0) {
+            settings.setValue(resumeKeyForPath(currentFile_), position_);
         }
     });
 
@@ -142,6 +156,17 @@ void PlayerController::openFile(const QString &rawPath)
         currentFile_ = path;
         emit currentFileChanged();
     }
+
+    QSettings settings;
+    QStringList recents = settings.value(QStringLiteral("recent/history")).toStringList();
+    recents.removeAll(path);
+    recents.prepend(path);
+    while (recents.size() > 15) {
+        recents.removeLast();
+    }
+    settings.setValue(QStringLiteral("recent/history"), recents);
+    emit recentFilesChanged();
+
     if (mpv_ != nullptr) {
         mpv_->openFile(path);
     }
@@ -346,4 +371,26 @@ void PlayerController::setSpeed(double speed)
     if (mpv_ != nullptr) {
         mpv_->setSpeed(speed_);
     }
+}
+
+void PlayerController::setAspectRatio(const QString &ratio)
+{
+    if (mpv_ != nullptr) {
+        // ratio values: "-1" (auto/original), "16:9", "4:3", "2.35:1"
+        mpv_->setStringProperty("video-aspect-override", ratio);
+    }
+}
+
+QStringList PlayerController::recentFiles() const
+{
+    QSettings settings;
+    const QStringList recents = settings.value(QStringLiteral("recent/history")).toStringList();
+    QStringList result;
+    result.reserve(recents.size());
+    for (const auto &filePath : recents) {
+        if (QFile::exists(filePath)) {
+            result.append(filePath);
+        }
+    }
+    return result;
 }

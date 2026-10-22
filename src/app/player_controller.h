@@ -17,6 +17,7 @@ class PlayerController final : public QObject
     Q_PROPERTY(double duration READ duration NOTIFY durationChanged)
     Q_PROPERTY(double speed READ speed WRITE setSpeed NOTIFY speedChanged)
     Q_PROPERTY(QString currentFile READ currentFile NOTIFY currentFileChanged)
+    Q_PROPERTY(QStringList recentFiles READ recentFiles NOTIFY recentFilesChanged)
     Q_PROPERTY(QString error READ error NOTIFY errorChanged)
 
 public:
@@ -29,6 +30,7 @@ public:
     double duration() const;
     double speed() const;
     QString currentFile() const;
+    QStringList recentFiles() const;
     QString error() const;
     MpvWrapper *backend() const;
 
@@ -59,6 +61,7 @@ public:
     Q_INVOKABLE void setEqualizerPreset(const QString &preset);
     Q_INVOKABLE void setNormalizationEnabled(bool enabled);
     Q_INVOKABLE void setVideoFilterPreset(const QString &preset);
+    Q_INVOKABLE void setAspectRatio(const QString &ratio);
     void setVolume(double volume);
     void setSpeed(double speed);
 
@@ -70,6 +73,7 @@ signals:
     void durationChanged();
     void speedChanged();
     void currentFileChanged();
+    void recentFilesChanged();
     void errorChanged();
 
 private:

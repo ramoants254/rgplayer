@@ -42,6 +42,7 @@ qt_add_qml_module(rgplayer
         qml/components/ThemeCheckBox.qml
         qml/components/ThemeSlider.qml
         qml/components/ThemeButton.qml
+        qml/components/VideoContextMenu.qml
     RESOURCES
         resources/rgplayer.svg
     SOURCES
