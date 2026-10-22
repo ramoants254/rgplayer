@@ -42,9 +42,12 @@ ApplicationWindow {
         }
     }
 
-    Shortcut {
-        sequence: "Space"
-        onActivated: playerController.togglePause()
+    function isAudioFile(path) {
+        if (!path) return false
+        let lower = path.toLowerCase()
+        return lower.endsWith(".mp3") || lower.endsWith(".flac") || lower.endsWith(".wav")
+            || lower.endsWith(".m4a") || lower.endsWith(".aac") || lower.endsWith(".ogg")
+            || lower.endsWith(".opus") || lower.endsWith(".wma")
     }
 
     function openMedia(path) {
@@ -311,21 +314,22 @@ ApplicationWindow {
         z: 1
         onDropped: function(drop) {
             if (drop.hasUrls && drop.urls.length > 0) {
-                let firstPath = ""
+                let initialCount = playlistModel.count()
                 for (let i = 0; i < drop.urls.length; ++i) {
                     let raw = drop.urls[i].toString()
                     if (raw.startsWith("file:///"))
                         raw = raw.slice(7)
                     else if (raw.startsWith("file://"))
                         raw = raw.slice(7)
-                    let clean = decodeURIComponent(raw)
-                    if (i === 0)
-                        firstPath = clean
-                    playlistModel.addFile(clean)
+                    playlistModel.addFile(decodeURIComponent(raw))
                 }
-                if (firstPath.length > 0) {
-                    openMedia(firstPath)
-                    osd.showMessage(qsTr("Added %1 file(s) to playlist").arg(drop.urls.length))
+                let newCount = playlistModel.count()
+                if (newCount > initialCount) {
+                    let firstNewPath = playlistModel.getPath(initialCount)
+                    if (firstNewPath.length > 0) {
+                        playlistModel.playAt(initialCount)
+                    }
+                    osd.showMessage(qsTr("Added %1 item(s) to playlist").arg(newCount - initialCount))
                 }
                 drop.acceptProposedAction()
             }
@@ -404,6 +408,120 @@ ApplicationWindow {
                 checked: appSettings.reduceMotion
                 text: qsTr("Reduce motion")
                 onToggled: appSettings.reduceMotion = checked
+            }
+        }
+    }
+
+    // Music / Audio Album Screen
+    Rectangle {
+        id: musicView
+        anchors.centerIn: parent
+        width: Math.min(parent.width - 48, 460)
+        height: 270
+        color: Qt.rgba(0.08, 0.08, 0.10, 0.88)
+        border.color: Qt.rgba(1, 1, 1, 0.12)
+        radius: 16
+        z: 2
+        visible: playerController.duration > 0 && isAudioFile(playerController.currentFile)
+
+        ColumnLayout {
+            anchors.centerIn: parent
+            spacing: 14
+            width: parent.width - 40
+
+            // Vinyl Record Disc
+            Rectangle {
+                Layout.alignment: Qt.AlignHCenter
+                width: 90
+                height: 90
+                radius: 45
+                color: "#181a1f"
+                border.color: Theme.accent
+                border.width: 2
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 60
+                    height: 60
+                    radius: 30
+                    color: "transparent"
+                    border.color: Qt.rgba(1, 1, 1, 0.08)
+                    border.width: 1
+                }
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 26
+                    height: 26
+                    radius: 13
+                    color: Theme.accent
+                }
+
+                Label {
+                    anchors.centerIn: parent
+                    text: "🎵"
+                    font.pixelSize: 16
+                }
+
+                RotationAnimation on rotation {
+                    loops: Animation.Infinite
+                    from: 0
+                    to: 360
+                    duration: 5000
+                    running: musicView.visible && !playerController.paused && !appSettings.reduceMotion
+                }
+            }
+
+            // Track info
+            ColumnLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 4
+
+                Label {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.maximumWidth: musicView.width - 40
+                    elide: Text.ElideMiddle
+                    text: {
+                        let path = playerController.currentFile
+                        let filename = path.substring(path.lastIndexOf('/') + 1)
+                        return filename.length > 0 ? filename : qsTr("Audio Track")
+                    }
+                    color: Theme.text
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                }
+
+                Label {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: {
+                        let parts = playerController.currentFile.split('.')
+                        let ext = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : "AUDIO"
+                        return qsTr("%1 Track • %2").arg(ext).arg(playerController.paused ? qsTr("Paused") : qsTr("Playing"))
+                    }
+                    color: Theme.accent
+                    font.pixelSize: 13
+                }
+            }
+
+            // Equalizer Bars
+            Row {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 4
+
+                Repeater {
+                    model: 14
+                    Rectangle {
+                        width: 4
+                        height: 6 + Math.abs(Math.sin((index * 0.7) + (playerController.position * 9))) * 22
+                        radius: 2
+                        color: Theme.accent
+                        opacity: playerController.paused ? 0.35 : 0.9
+
+                        Behavior on height {
+                            NumberAnimation { duration: 90 }
+                        }
+                    }
+                }
             }
         }
     }

@@ -5,7 +5,6 @@ Slider {
     id: slider
 
     signal hoverValueChanged(real value)
-    property alias hovered: hoverHandler.hovered
     property real hoverPositionX: hoverHandler.point.position.x
 
     implicitHeight: 24

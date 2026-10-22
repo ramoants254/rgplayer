@@ -1,5 +1,6 @@
 #include "playlist_model.h"
 
+#include <QDir>
 #include <QFileInfo>
 #include <QSettings>
 
@@ -42,7 +43,29 @@ int PlaylistModel::currentIndex() const
 
 void PlaylistModel::addFile(const QString &path)
 {
-    const QString normalizedPath = QFileInfo(path).absoluteFilePath();
+    QFileInfo info(path);
+    if (!info.exists()) {
+        return;
+    }
+
+    if (info.isDir()) {
+        QDir dir(path);
+        const QStringList nameFilters = {
+            QStringLiteral("*.mp4"), QStringLiteral("*.mkv"), QStringLiteral("*.webm"),
+            QStringLiteral("*.avi"), QStringLiteral("*.mov"), QStringLiteral("*.ts"),
+            QStringLiteral("*.flv"), QStringLiteral("*.m4v"), QStringLiteral("*.wmv"),
+            QStringLiteral("*.mp3"), QStringLiteral("*.flac"), QStringLiteral("*.wav"),
+            QStringLiteral("*.m4a"), QStringLiteral("*.aac"), QStringLiteral("*.ogg"),
+            QStringLiteral("*.opus"), QStringLiteral("*.wma")
+        };
+        const QFileInfoList entries = dir.entryInfoList(nameFilters, QDir::Files, QDir::Name);
+        for (const QFileInfo &entry : entries) {
+            addFile(entry.absoluteFilePath());
+        }
+        return;
+    }
+
+    const QString normalizedPath = info.absoluteFilePath();
     if (normalizedPath.isEmpty() || paths_.contains(normalizedPath)) {
         return;
     }
@@ -102,4 +125,14 @@ void PlaylistModel::save() const
 {
     QSettings settings;
     settings.setValue(QStringLiteral("playlist/paths"), paths_);
+}
+
+int PlaylistModel::count() const
+{
+    return paths_.size();
+}
+
+QString PlaylistModel::getPath(int index) const
+{
+    return (index >= 0 && index < paths_.size()) ? paths_.at(index) : QString();
 }
