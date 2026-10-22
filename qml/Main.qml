@@ -64,14 +64,91 @@ ApplicationWindow {
         z: 5
     }
 
+    property real previousVolume: 100
+    property int loopStep: 0
+
+    // Play / Pause
     Shortcut {
-        sequence: "Ctrl+O"
-        onActivated: fileDialog.open()
+        sequence: "Space"
+        onActivated: {
+            playerController.togglePause()
+            osd.showMessage(playerController.paused ? qsTr("Paused") : qsTr("Playing"))
+        }
+    }
+
+    // Seeking
+    Shortcut {
+        sequence: "Left"
+        onActivated: {
+            let target = Math.max(0, playerController.position - 5)
+            playerController.seek(target)
+            osd.showMessage(qsTr("Seek -5s"))
+        }
     }
 
     Shortcut {
-        sequence: "Ctrl+,"
-        onActivated: window.settingsVisible = !window.settingsVisible
+        sequence: "Right"
+        onActivated: {
+            let target = Math.min(playerController.duration, playerController.position + 5)
+            playerController.seek(target)
+            osd.showMessage(qsTr("Seek +5s"))
+        }
+    }
+
+    Shortcut {
+        sequence: "Shift+Left"
+        onActivated: {
+            let target = Math.max(0, playerController.position - 1)
+            playerController.seek(target)
+            osd.showMessage(qsTr("Seek -1s"))
+        }
+    }
+
+    Shortcut {
+        sequence: "Shift+Right"
+        onActivated: {
+            let target = Math.min(playerController.duration, playerController.position + 1)
+            playerController.seek(target)
+            osd.showMessage(qsTr("Seek +1s"))
+        }
+    }
+
+    // Volume
+    Shortcut {
+        sequence: "Up"
+        onActivated: {
+            playerController.volume = Math.min(100, playerController.volume + 5)
+            osd.showMessage(qsTr("Volume %1%").arg(Math.round(playerController.volume)))
+        }
+    }
+
+    Shortcut {
+        sequence: "Down"
+        onActivated: {
+            playerController.volume = Math.max(0, playerController.volume - 5)
+            osd.showMessage(qsTr("Volume %1%").arg(Math.round(playerController.volume)))
+        }
+    }
+
+    Shortcut {
+        sequence: "M"
+        onActivated: {
+            if (playerController.volume > 0) {
+                window.previousVolume = playerController.volume
+                playerController.volume = 0
+                osd.showMessage(qsTr("Muted"))
+            } else {
+                playerController.volume = window.previousVolume > 0 ? window.previousVolume : 100
+                osd.showMessage(qsTr("Volume %1%").arg(Math.round(playerController.volume)))
+            }
+        }
+    }
+
+    // Fullscreen
+    Shortcut {
+        sequence: "F"
+        onActivated: window.visibility = window.visibility === Window.FullScreen
+            ? Window.Windowed : Window.FullScreen
     }
 
     Shortcut {
@@ -80,21 +157,41 @@ ApplicationWindow {
             ? Window.Windowed : Window.FullScreen
     }
 
+    // Speed
     Shortcut {
         sequence: "["
-        onActivated: playerController.speed = Math.max(0.25, playerController.speed - 0.25)
+        onActivated: {
+            playerController.speed = Math.max(0.25, playerController.speed - 0.25)
+            osd.showMessage(qsTr("Speed: %1x").arg(playerController.speed.toFixed(2)))
+        }
     }
 
     Shortcut {
         sequence: "]"
-        onActivated: playerController.speed = Math.min(4.0, playerController.speed + 0.25)
+        onActivated: {
+            playerController.speed = Math.min(4.0, playerController.speed + 0.25)
+            osd.showMessage(qsTr("Speed: %1x").arg(playerController.speed.toFixed(2)))
+        }
     }
 
     Shortcut {
-        sequence: "."
-        onActivated: playerController.frameStep()
+        sequence: "Backspace"
+        onActivated: {
+            playerController.speed = 1.0
+            osd.showMessage(qsTr("Speed: 1.00x"))
+        }
     }
 
+    // Frame stepping
+    Shortcut {
+        sequence: "."
+        onActivated: {
+            playerController.frameStep()
+            osd.showMessage(qsTr("Frame Step Forward"))
+        }
+    }
+
+    // Chapters
     Shortcut {
         sequence: "PageUp"
         onActivated: playerController.previousChapter()
@@ -103,6 +200,64 @@ ApplicationWindow {
     Shortcut {
         sequence: "PageDown"
         onActivated: playerController.nextChapter()
+    }
+
+    // A-B Loop
+    Shortcut {
+        sequence: "L"
+        onActivated: {
+            if (window.loopStep === 0) {
+                playerController.setLoopStart()
+                osd.showMessage(qsTr("Loop Point A set"))
+                window.loopStep = 1
+            } else if (window.loopStep === 1) {
+                playerController.setLoopEnd()
+                osd.showMessage(qsTr("Loop Point B set"))
+                window.loopStep = 2
+            } else {
+                playerController.clearLoop()
+                osd.showMessage(qsTr("Loop cleared"))
+                window.loopStep = 0
+            }
+        }
+    }
+
+    // Dialogs & drawers
+    Shortcut {
+        sequence: "Ctrl+O"
+        onActivated: fileDialog.open()
+    }
+
+    Shortcut {
+        sequence: "O"
+        onActivated: fileDialog.open()
+    }
+
+    Shortcut {
+        sequence: "P"
+        onActivated: window.playlistVisible = !window.playlistVisible
+    }
+
+    Shortcut {
+        sequence: "Ctrl+,"
+        onActivated: window.settingsVisible = !window.settingsVisible
+    }
+
+    Shortcut {
+        sequence: "S"
+        onActivated: window.settingsVisible = !window.settingsVisible
+    }
+
+    Shortcut {
+        sequence: "Escape"
+        onActivated: {
+            if (window.playlistVisible)
+                window.playlistVisible = false
+            else if (window.settingsVisible)
+                window.settingsVisible = false
+            else if (window.visibility === Window.FullScreen)
+                window.visibility = Window.Windowed
+        }
     }
 
     FileDialog {
@@ -156,7 +311,22 @@ ApplicationWindow {
         z: 1
         onDropped: function(drop) {
             if (drop.hasUrls && drop.urls.length > 0) {
-                openMedia(drop.urls[0].toLocalFile())
+                let firstPath = ""
+                for (let i = 0; i < drop.urls.length; ++i) {
+                    let raw = drop.urls[i].toString()
+                    if (raw.startsWith("file:///"))
+                        raw = raw.slice(7)
+                    else if (raw.startsWith("file://"))
+                        raw = raw.slice(7)
+                    let clean = decodeURIComponent(raw)
+                    if (i === 0)
+                        firstPath = clean
+                    playlistModel.addFile(clean)
+                }
+                if (firstPath.length > 0) {
+                    openMedia(firstPath)
+                    osd.showMessage(qsTr("Added %1 file(s) to playlist").arg(drop.urls.length))
+                }
                 drop.acceptProposedAction()
             }
         }

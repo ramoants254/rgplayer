@@ -41,16 +41,17 @@ Item {
 
     // ── Seek-bar hover thumbnail ────────────────────────────────────────────
     Rectangle {
+        id: thumbBox
         anchors.bottom: controlsCol.top
         anchors.bottomMargin: 10
-        anchors.horizontalCenter: parent.horizontalCenter
-        width:  thumbImg.implicitWidth + 2
-        height: thumbImg.implicitHeight + 2
-        color: "transparent"
-        border.color: Qt.rgba(1, 1, 1, 0.18)
+        x: Math.max(14, Math.min(bar.width - width - 14, controlsCol.x + seekSlider.x + seekSlider.hoverPositionX - width / 2))
+        width: 162
+        height: 92
+        color: "#111215"
+        border.color: Theme.accent
         border.width: 1
         radius: 4
-        visible: thumbImg.status === Image.Ready
+        visible: seekSlider.hovered && bar.revealed && thumbImg.status === Image.Ready && bar.thumbnailSource.toString().length > 0
 
         Image {
             id: thumbImg

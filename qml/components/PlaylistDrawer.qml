@@ -71,4 +71,21 @@ Rectangle {
             onClicked: drawer.playlist.clear()
         }
     }
+
+    DropArea {
+        anchors.fill: parent
+        onDropped: function(drop) {
+            if (drop.hasUrls && drop.urls.length > 0) {
+                for (let i = 0; i < drop.urls.length; ++i) {
+                    let raw = drop.urls[i].toString()
+                    if (raw.startsWith("file:///"))
+                        raw = raw.slice(7)
+                    else if (raw.startsWith("file://"))
+                        raw = raw.slice(7)
+                    drawer.playlist.addFile(decodeURIComponent(raw))
+                }
+                drop.acceptProposedAction()
+            }
+        }
+    }
 }
