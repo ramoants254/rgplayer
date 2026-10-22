@@ -43,17 +43,126 @@ Rectangle {
             Layout.fillWidth: true
             clip: true
             model: drawer.playlist
-            spacing: 6
+            spacing: 4
+            focus: true
+            boundsBehavior: Flickable.StopAtBounds
 
-            delegate: ThemeButton {
+            Keys.onReturnPressed: {
+                if (currentIndex >= 0 && currentIndex < count) {
+                    drawer.playlist.playAt(currentIndex)
+                }
+            }
+            Keys.onEnterPressed: {
+                if (currentIndex >= 0 && currentIndex < count) {
+                    drawer.playlist.playAt(currentIndex)
+                }
+            }
+            Keys.onDeletePressed: {
+                if (currentIndex >= 0 && currentIndex < count) {
+                    drawer.playlist.removeAt(currentIndex)
+                }
+            }
+
+            delegate: Rectangle {
+                id: itemDelegate
                 required property string title
                 required property int index
 
-                Accessible.name: qsTr("Play %1").arg(title)
-                highlighted: index === drawer.playlist.currentIndex
-                text: title
+                readonly property bool isPlaying: index === drawer.playlist.currentIndex
+                readonly property bool isSelected: index === list.currentIndex
+
                 width: list.width
-                onClicked: drawer.playlist.playAt(index)
+                height: Theme.controlHeight
+                radius: Theme.controlRadius
+                color: {
+                    if (mouseArea.pressed)
+                        return Theme.surfaceRaised
+                    if (isSelected && list.activeFocus)
+                        return Theme.surfaceRaised
+                    if (isPlaying)
+                        return Qt.rgba(1.0, 0.42, 0.0, 0.18)
+                    if (mouseArea.containsMouse)
+                        return Theme.surfaceRaised
+                    return Theme.surface
+                }
+                border.color: {
+                    if (isSelected && list.activeFocus)
+                        return Theme.accent
+                    if (isPlaying)
+                        return Theme.accent
+                    if (isSelected)
+                        return Theme.border
+                    return "transparent"
+                }
+                border.width: (isPlaying || (isSelected && list.activeFocus)) ? 1.5 : 1
+
+                MouseArea {
+                    id: mouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    acceptedButtons: Qt.LeftButton
+
+                    onClicked: {
+                        list.currentIndex = itemDelegate.index
+                        list.forceActiveFocus()
+                    }
+
+                    onDoubleClicked: {
+                        drawer.playlist.playAt(itemDelegate.index)
+                    }
+                }
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.leftMargin: 10
+                    anchors.rightMargin: 8
+                    spacing: 8
+
+                    // Playing icon or track number
+                    Label {
+                        Layout.preferredWidth: 20
+                        text: itemDelegate.isPlaying ? "▶" : (itemDelegate.index + 1)
+                        color: itemDelegate.isPlaying ? Theme.accent : Theme.textMuted
+                        font.pixelSize: itemDelegate.isPlaying ? 11 : 12
+                        font.weight: itemDelegate.isPlaying ? Font.Bold : Font.Normal
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    // Track title
+                    Label {
+                        Layout.fillWidth: true
+                        text: itemDelegate.title
+                        color: itemDelegate.isPlaying ? Theme.accent : Theme.text
+                        font.pixelSize: 13
+                        font.weight: itemDelegate.isPlaying ? Font.Medium : Font.Normal
+                        elide: Text.ElideRight
+                    }
+
+                    // Remove item button
+                    Rectangle {
+                        Layout.preferredWidth: 22
+                        Layout.preferredHeight: 22
+                        radius: 11
+                        color: delMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : "transparent"
+                        visible: mouseArea.containsMouse || itemDelegate.isSelected
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: "✕"
+                            color: delMouse.containsMouse ? "#FF4D4D" : Theme.textMuted
+                            font.pixelSize: 11
+                        }
+
+                        MouseArea {
+                            id: delMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: drawer.playlist.removeAt(itemDelegate.index)
+                        }
+                    }
+                }
             }
 
             Label {
