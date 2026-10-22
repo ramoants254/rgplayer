@@ -1,7 +1,9 @@
 #include "player_controller.h"
 
+#include <QDir>
 #include <QSettings>
 #include <QTimer>
+#include <QUrl>
 
 #include "core/mpv_wrapper.h"
 
@@ -117,8 +119,25 @@ MpvWrapper *PlayerController::backend() const
     return mpv_;
 }
 
-void PlayerController::openFile(const QString &path)
+void PlayerController::openFile(const QString &rawPath)
 {
+    QString path = rawPath.trimmed();
+    if (path.isEmpty()) {
+        return;
+    }
+    if ((path.startsWith('"') && path.endsWith('"')) || (path.startsWith('\'') && path.endsWith('\''))) {
+        path = path.mid(1, path.length() - 2);
+    }
+    if (path.startsWith(QLatin1String("file:///"))) {
+        path = path.mid(7);
+    } else if (path.startsWith(QLatin1String("file://"))) {
+        path = path.mid(7);
+    }
+    if (path.startsWith(QLatin1String("~/"))) {
+        path = QDir::homePath() + path.mid(1);
+    }
+    path = QUrl::fromPercentEncoding(path.toUtf8());
+
     if (currentFile_ != path) {
         currentFile_ = path;
         emit currentFileChanged();

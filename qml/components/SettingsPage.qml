@@ -22,243 +22,337 @@ Rectangle {
         title: qsTr("Load subtitle file")
         fileMode: FileDialog.OpenFile
         nameFilters: [qsTr("Subtitle files (*.srt *.ass *.ssa *.vtt)"), qsTr("All files (*)")]
-        onAccepted: page.controller.loadSubtitle(selectedFile.toLocalFile())
+        onAccepted: {
+            let raw = selectedFile.toString()
+            if (raw.startsWith("file:///"))
+                raw = raw.slice(7)
+            else if (raw.startsWith("file://"))
+                raw = raw.slice(7)
+            page.controller.loadSubtitle(decodeURIComponent(raw))
+        }
     }
 
-    ColumnLayout {
-        anchors.centerIn: parent
-        width: Math.min(parent.width - 48, 640)
-        spacing: 18
+    // ── Sticky Top Header Bar (Always visible) ───────────────────────────────
+    Rectangle {
+        id: headerBar
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 60
+        color: Theme.surface
+        border.color: Theme.border
+        border.width: 1
+        z: 10
 
         RowLayout {
-            Layout.fillWidth: true
+            anchors.fill: parent
+            anchors.leftMargin: 20
+            anchors.rightMargin: 20
 
             Label {
                 Layout.fillWidth: true
                 color: Theme.text
-                font.pixelSize: 24
+                font.pixelSize: 20
                 font.weight: Font.DemiBold
-                text: qsTr("Settings")
+                text: qsTr("Settings & Adjustments")
             }
 
             ThemeButton {
                 Accessible.name: qsTr("Close settings")
-                text: qsTr("Close")
+                text: qsTr("✕ Close Settings (Esc)")
+                highlighted: true
                 onClicked: page.closeRequested()
             }
         }
+    }
 
-        Rectangle {
-            Layout.fillWidth: true
-            implicitHeight: preferences.implicitHeight + 32
-            color: Theme.surface
-            border.color: Theme.border
-            radius: Theme.panelRadius
+    // ── Scrollable Settings Content ──────────────────────────────────────────
+    ScrollView {
+        anchors.top: headerBar.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        clip: true
+        contentWidth: availableWidth
 
-            ColumnLayout {
-                id: preferences
+        ColumnLayout {
+            width: Math.min(parent.width - 40, 640)
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 16
+            Layout.topMargin: 16
+            Layout.bottomMargin: 24
 
-                anchors.fill: parent
-                anchors.margins: 16
-                spacing: 12
+            Item { height: 4 } // Top spacer
 
-                Label {
-                    color: Theme.text
-                    font.weight: Font.DemiBold
-                    text: qsTr("Playback")
-                }
+            // 1. Playback & UI Preferences
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: preferences.implicitHeight + 32
+                color: Theme.surface
+                border.color: Theme.border
+                radius: Theme.panelRadius
 
-                ThemeCheckBox {
-                    Accessible.name: qsTr("Reduce motion")
-                    checked: page.reduceMotion
-                    text: qsTr("Reduce motion")
-                    onToggled: page.reduceMotion = checked
-                }
+                ColumnLayout {
+                    id: preferences
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 10
 
-                Label {
-                    Layout.fillWidth: true
-                    color: Theme.textMuted
-                    text: qsTr("Playback controls fade more gently when enabled.")
-                    wrapMode: Text.WordWrap
-                }
-            }
-        }
+                    Label {
+                        color: Theme.text
+                        font.weight: Font.DemiBold
+                        font.pixelSize: 16
+                        text: qsTr("Playback & Appearance")
+                    }
 
-        Rectangle {
-            Layout.fillWidth: true
-            implicitHeight: subtitleControls.implicitHeight + 32
-            color: Theme.surface
-            border.color: Theme.border
-            radius: Theme.panelRadius
+                    ThemeCheckBox {
+                        Accessible.name: qsTr("Reduce motion")
+                        checked: page.reduceMotion
+                        text: qsTr("Reduce motion animations")
+                        onToggled: page.reduceMotion = checked
+                    }
 
-            ColumnLayout {
-                id: subtitleControls
-
-                anchors.fill: parent
-                anchors.margins: 16
-                spacing: 10
-
-                Label {
-                    color: Theme.text
-                    font.weight: Font.DemiBold
-                    text: qsTr("Subtitles and audio")
-                }
-
-                ThemeButton {
-                    Accessible.name: qsTr("Load subtitle file")
-                    text: qsTr("Load subtitle")
-                    onClicked: subtitleDialog.open()
-                }
-
-                Label { color: Theme.textMuted; text: qsTr("Subtitle delay") }
-                ThemeSlider {
-                    Layout.fillWidth: true
-                    Accessible.name: qsTr("Subtitle delay")
-                    from: -10
-                    to: 10
-                    value: 0
-                    onMoved: page.controller.setSubtitleDelay(value)
-                }
-
-                Label { color: Theme.textMuted; text: qsTr("Subtitle size") }
-                ThemeSlider {
-                    Layout.fillWidth: true
-                    Accessible.name: qsTr("Subtitle size")
-                    from: 0.5
-                    to: 3
-                    value: 1
-                    onMoved: page.controller.setSubtitleScale(value)
-                }
-
-                Label { color: Theme.textMuted; text: qsTr("Audio delay") }
-                ThemeSlider {
-                    Layout.fillWidth: true
-                    Accessible.name: qsTr("Audio delay")
-                    from: -10
-                    to: 10
-                    value: 0
-                    onMoved: page.controller.setAudioDelay(value)
-                }
-
-                ThemeButton {
-                    Accessible.name: qsTr("Cycle audio track")
-                    text: qsTr("Next audio track")
-                    onClicked: page.controller.cycleAudioTrack()
-                }
-
-                ThemeButton {
-                    Accessible.name: qsTr("Cycle subtitle track")
-                    text: qsTr("Next subtitle track")
-                    onClicked: page.controller.cycleSubtitleTrack()
+                    Label {
+                        Layout.fillWidth: true
+                        color: Theme.textMuted
+                        font.pixelSize: 12
+                        text: qsTr("Playback controls and overlays transition instantly without animated fading.")
+                        wrapMode: Text.WordWrap
+                    }
                 }
             }
-        }
 
-        Rectangle {
-            Layout.fillWidth: true
-            implicitHeight: videoControls.implicitHeight + 32
-            color: Theme.surface
-            border.color: Theme.border
-            radius: Theme.panelRadius
+            // 2. Subtitles and Audio
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: subtitleControls.implicitHeight + 32
+                color: Theme.surface
+                border.color: Theme.border
+                radius: Theme.panelRadius
 
-            ColumnLayout {
-                id: videoControls
+                ColumnLayout {
+                    id: subtitleControls
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 10
 
-                anchors.fill: parent
-                anchors.margins: 16
-                spacing: 10
+                    Label {
+                        color: Theme.text
+                        font.weight: Font.DemiBold
+                        font.pixelSize: 16
+                        text: qsTr("Subtitles & Audio")
+                    }
 
-                Label {
-                    color: Theme.text
-                    font.weight: Font.DemiBold
-                    text: qsTr("Video")
-                }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 8
 
-                Label { color: Theme.textMuted; text: qsTr("Brightness") }
-                ThemeSlider {
-                    Layout.fillWidth: true
-                    Accessible.name: qsTr("Brightness")
-                    from: -100
-                    to: 100
-                    value: 0
-                    onMoved: page.controller.setBrightness(value)
-                }
+                        ThemeButton {
+                            Accessible.name: qsTr("Load subtitle file")
+                            text: qsTr("📁 Load subtitle file...")
+                            onClicked: subtitleDialog.open()
+                        }
 
-                Label { color: Theme.textMuted; text: qsTr("Contrast") }
-                ThemeSlider {
-                    Layout.fillWidth: true
-                    Accessible.name: qsTr("Contrast")
-                    from: -100
-                    to: 100
-                    value: 0
-                    onMoved: page.controller.setContrast(value)
-                }
+                        ThemeButton {
+                            Accessible.name: qsTr("Cycle audio track")
+                            text: qsTr("Next audio track")
+                            onClicked: page.controller.cycleAudioTrack()
+                        }
 
-                Label { color: Theme.textMuted; text: qsTr("Saturation") }
-                ThemeSlider {
-                    Layout.fillWidth: true
-                    Accessible.name: qsTr("Saturation")
-                    from: -100
-                    to: 100
-                    value: 0
-                    onMoved: page.controller.setSaturation(value)
-                }
+                        ThemeButton {
+                            Accessible.name: qsTr("Cycle subtitle track")
+                            text: qsTr("Next subtitle track")
+                            onClicked: page.controller.cycleSubtitleTrack()
+                        }
+                    }
 
-                ThemeButton {
-                    Accessible.name: qsTr("Take screenshot")
-                    text: qsTr("Screenshot")
-                    onClicked: page.controller.screenshot()
-                }
+                    Label { color: Theme.textMuted; text: qsTr("Subtitle delay (seconds)") }
+                    ThemeSlider {
+                        Layout.fillWidth: true
+                        Accessible.name: qsTr("Subtitle delay")
+                        from: -10
+                        to: 10
+                        value: 0
+                        onMoved: page.controller.setSubtitleDelay(value)
+                    }
 
-                ThemeCheckBox {
-                    Accessible.name: qsTr("Force ASS subtitle styling")
-                    text: qsTr("Force ASS subtitle styling")
-                    onToggled: page.controller.setSubtitleOverride(checked)
-                }
+                    Label { color: Theme.textMuted; text: qsTr("Subtitle scale") }
+                    ThemeSlider {
+                        Layout.fillWidth: true
+                        Accessible.name: qsTr("Subtitle size")
+                        from: 0.5
+                        to: 3.0
+                        value: 1.0
+                        onMoved: page.controller.setSubtitleScale(value)
+                    }
 
-                Label { color: Theme.textMuted; text: qsTr("Subtitle font size") }
-                ThemeSlider {
-                    Layout.fillWidth: true
-                    Accessible.name: qsTr("Subtitle font size")
-                    from: 8
-                    to: 96
-                    value: 55
-                    onMoved: page.controller.setSubtitleFontSize(value)
-                }
+                    Label { color: Theme.textMuted; text: qsTr("Audio sync delay (seconds)") }
+                    ThemeSlider {
+                        Layout.fillWidth: true
+                        Accessible.name: qsTr("Audio delay")
+                        from: -10
+                        to: 10
+                        value: 0
+                        onMoved: page.controller.setAudioDelay(value)
+                    }
 
-                Label { color: Theme.textMuted; text: qsTr("Subtitle codepage") }
-                ComboBox {
-                    Accessible.name: qsTr("Subtitle codepage")
-                    Layout.fillWidth: true
-                    model: [qsTr("Automatic"), qsTr("UTF-8"), qsTr("Windows-1252")]
-                    onActivated: page.controller.setSubtitleCodepage(index === 0
-                        ? "enca:en" : index === 1 ? "utf-8" : "cp1252")
-                }
+                    ThemeCheckBox {
+                        Accessible.name: qsTr("Loudness normalization")
+                        text: qsTr("Loudness normalization (dialogue leveling)")
+                        onToggled: page.controller.setNormalizationEnabled(checked)
+                    }
 
-                Label { color: Theme.textMuted; text: qsTr("Audio preset") }
-                ComboBox {
-                    Accessible.name: qsTr("Audio preset")
-                    Layout.fillWidth: true
-                    model: [qsTr("Flat"), qsTr("Voice"), qsTr("Bass")]
-                    onActivated: page.controller.setEqualizerPreset(index === 0
-                        ? "" : index === 1 ? "equalizer=f=1000:g=4" : "equalizer=f=60:g=6")
-                }
-
-                ThemeCheckBox {
-                    Accessible.name: qsTr("Loudness normalization")
-                    text: qsTr("Loudness normalization")
-                    onToggled: page.controller.setNormalizationEnabled(checked)
-                }
-
-                Label { color: Theme.textMuted; text: qsTr("Video filter preset") }
-                ComboBox {
-                    Accessible.name: qsTr("Video filter preset")
-                    Layout.fillWidth: true
-                    model: [qsTr("None"), qsTr("Deband"), qsTr("Sharpen"), qsTr("Deband + sharpen")]
-                    onActivated: page.controller.setVideoFilterPreset(index === 0
-                        ? "" : index === 1 ? "deband" : index === 2 ? "sharpen" : "deband,sharpen")
+                    Label { color: Theme.textMuted; text: qsTr("Audio Equalizer preset") }
+                    ComboBox {
+                        Accessible.name: qsTr("Audio preset")
+                        Layout.fillWidth: true
+                        model: [qsTr("Flat (Default)"), qsTr("Voice Clarity"), qsTr("Bass Boost")]
+                        onActivated: page.controller.setEqualizerPreset(index === 0
+                            ? "" : index === 1 ? "equalizer=f=1000:g=4" : "equalizer=f=60:g=6")
+                    }
                 }
             }
+
+            // 3. Video Adjustments
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: videoControls.implicitHeight + 32
+                color: Theme.surface
+                border.color: Theme.border
+                radius: Theme.panelRadius
+
+                ColumnLayout {
+                    id: videoControls
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 10
+
+                    Label {
+                        color: Theme.text
+                        font.weight: Font.DemiBold
+                        font.pixelSize: 16
+                        text: qsTr("Video Color & Enhancements")
+                    }
+
+                    Label { color: Theme.textMuted; text: qsTr("Brightness") }
+                    ThemeSlider {
+                        Layout.fillWidth: true
+                        Accessible.name: qsTr("Brightness")
+                        from: -100
+                        to: 100
+                        value: 0
+                        onMoved: page.controller.setBrightness(value)
+                    }
+
+                    Label { color: Theme.textMuted; text: qsTr("Contrast") }
+                    ThemeSlider {
+                        Layout.fillWidth: true
+                        Accessible.name: qsTr("Contrast")
+                        from: -100
+                        to: 100
+                        value: 0
+                        onMoved: page.controller.setContrast(value)
+                    }
+
+                    Label { color: Theme.textMuted; text: qsTr("Saturation") }
+                    ThemeSlider {
+                        Layout.fillWidth: true
+                        Accessible.name: qsTr("Saturation")
+                        from: -100
+                        to: 100
+                        value: 0
+                        onMoved: page.controller.setSaturation(value)
+                    }
+
+                    Label { color: Theme.textMuted; text: qsTr("Video filter preset") }
+                    ComboBox {
+                        Accessible.name: qsTr("Video filter preset")
+                        Layout.fillWidth: true
+                        model: [qsTr("None"), qsTr("Deband (smooth gradients)"), qsTr("Sharpen"), qsTr("Deband + Sharpen")]
+                        onActivated: page.controller.setVideoFilterPreset(index === 0
+                            ? "" : index === 1 ? "deband" : index === 2 ? "sharpen" : "deband,sharpen")
+                    }
+
+                    ThemeButton {
+                        Accessible.name: qsTr("Take screenshot")
+                        text: qsTr("📸 Capture Frame Screenshot")
+                        onClicked: page.controller.screenshot()
+                    }
+                }
+            }
+
+            // 4. Keyboard Shortcuts & Help Reference
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: helpSection.implicitHeight + 32
+                color: Theme.surface
+                border.color: Theme.border
+                radius: Theme.panelRadius
+
+                ColumnLayout {
+                    id: helpSection
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 10
+
+                    Label {
+                        color: Theme.text
+                        font.weight: Font.DemiBold
+                        font.pixelSize: 16
+                        text: qsTr("Keyboard Shortcuts & Help")
+                    }
+
+                    GridLayout {
+                        columns: 2
+                        rowSpacing: 8
+                        columnSpacing: 24
+
+                        Label { color: Theme.accent; font.bold: true; text: "Space" }
+                        Label { color: Theme.text; text: qsTr("Play / Pause") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "Left / Right" }
+                        Label { color: Theme.text; text: qsTr("Seek backward / forward (5s)") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "Shift + Left/Right" }
+                        Label { color: Theme.text; text: qsTr("Precise seek (1s)") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "Up / Down" }
+                        Label { color: Theme.text; text: qsTr("Volume up / down (5%)") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "M" }
+                        Label { color: Theme.text; text: qsTr("Toggle Mute") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "F / Double Click" }
+                        Label { color: Theme.text; text: qsTr("Toggle Fullscreen") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "[ / ]" }
+                        Label { color: Theme.text; text: qsTr("Playback speed − / + (0.25x)") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "Backspace" }
+                        Label { color: Theme.text; text: qsTr("Reset speed to 1.00x") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "N / B" }
+                        Label { color: Theme.text; text: qsTr("Next / Previous playlist item") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "P" }
+                        Label { color: Theme.text; text: qsTr("Toggle Playlist drawer") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "S / Ctrl+," }
+                        Label { color: Theme.text; text: qsTr("Toggle Settings") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "L" }
+                        Label { color: Theme.text; text: qsTr("Set A-B Repeat Loop (A -> B -> Clear)") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "O / Ctrl+O" }
+                        Label { color: Theme.text; text: qsTr("Open File Dialog") }
+
+                        Label { color: Theme.accent; font.bold: true; text: "Esc" }
+                        Label { color: Theme.text; text: qsTr("Close Drawer / Exit Fullscreen") }
+                    }
+                }
+            }
+
+            Item { height: 24 } // Bottom padding
         }
     }
 }

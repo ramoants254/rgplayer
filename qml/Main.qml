@@ -51,11 +51,19 @@ ApplicationWindow {
     }
 
     function openMedia(path) {
-        if (path.length === 0) {
-            return
+        if (!path) return
+        let clean = path.trim()
+        if (clean.length === 0) return
+        if ((clean.startsWith('"') && clean.endsWith('"')) || (clean.startsWith("'") && clean.endsWith("'"))) {
+            clean = clean.substring(1, clean.length - 1)
         }
-        playlistModel.addFile(path)
-        playerController.openFile(path)
+        if (clean.startsWith("file:///"))
+            clean = clean.slice(7)
+        else if (clean.startsWith("file://"))
+            clean = clean.slice(7)
+        clean = decodeURIComponent(clean)
+        playlistModel.addFile(clean)
+        playerController.openFile(clean)
     }
 
     Osd {
@@ -225,34 +233,59 @@ ApplicationWindow {
         }
     }
 
+    // Next / Previous Playlist Tracks
+    Shortcut {
+        sequence: "N"
+        context: Qt.ApplicationShortcut
+        onActivated: {
+            playlistModel.playNext()
+            osd.showMessage(qsTr("Next track"))
+        }
+    }
+
+    Shortcut {
+        sequence: "B"
+        context: Qt.ApplicationShortcut
+        onActivated: {
+            playlistModel.playPrevious()
+            osd.showMessage(qsTr("Previous track"))
+        }
+    }
+
     // Dialogs & drawers
     Shortcut {
         sequence: "Ctrl+O"
+        context: Qt.ApplicationShortcut
         onActivated: fileDialog.open()
     }
 
     Shortcut {
         sequence: "O"
+        context: Qt.ApplicationShortcut
         onActivated: fileDialog.open()
     }
 
     Shortcut {
         sequence: "P"
+        context: Qt.ApplicationShortcut
         onActivated: window.playlistVisible = !window.playlistVisible
     }
 
     Shortcut {
         sequence: "Ctrl+,"
+        context: Qt.ApplicationShortcut
         onActivated: window.settingsVisible = !window.settingsVisible
     }
 
     Shortcut {
         sequence: "S"
+        context: Qt.ApplicationShortcut
         onActivated: window.settingsVisible = !window.settingsVisible
     }
 
     Shortcut {
         sequence: "Escape"
+        context: Qt.ApplicationShortcut
         onActivated: {
             if (window.playlistVisible)
                 window.playlistVisible = false
@@ -423,6 +456,10 @@ ApplicationWindow {
         radius: 16
         z: 2
         visible: playerController.duration > 0 && isAudioFile(playerController.currentFile)
+        opacity: (playbackBar.revealed || window.playlistVisible || window.settingsVisible) ? 1.0 : 0.0
+        Behavior on opacity {
+            NumberAnimation { duration: appSettings.reduceMotion ? 0 : 250 }
+        }
 
         ColumnLayout {
             anchors.centerIn: parent

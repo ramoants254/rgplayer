@@ -26,6 +26,8 @@ public:
     Q_INVOKABLE void removeAt(int index);
     Q_INVOKABLE void clear();
     Q_INVOKABLE void playAt(int index);
+    Q_INVOKABLE void playNext();
+    Q_INVOKABLE void playPrevious();
     Q_INVOKABLE int count() const;
     Q_INVOKABLE QString getPath(int index) const;
 

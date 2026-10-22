@@ -121,6 +121,24 @@ void PlaylistModel::playAt(int index)
     emit playRequested(paths_.at(index));
 }
 
+void PlaylistModel::playNext()
+{
+    if (paths_.isEmpty()) {
+        return;
+    }
+    const int nextIndex = (currentIndex_ + 1 < paths_.size()) ? currentIndex_ + 1 : 0;
+    playAt(nextIndex);
+}
+
+void PlaylistModel::playPrevious()
+{
+    if (paths_.isEmpty()) {
+        return;
+    }
+    const int prevIndex = (currentIndex_ - 1 >= 0) ? currentIndex_ - 1 : paths_.size() - 1;
+    playAt(prevIndex);
+}
+
 void PlaylistModel::save() const
 {
     QSettings settings;
