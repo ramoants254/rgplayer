@@ -56,8 +56,6 @@ Item {
             id: thumbImg
             anchors.fill: parent
             anchors.margins: 1
-            implicitWidth: 220
-            implicitHeight: 124
             fillMode: Image.PreserveAspectFit
             source: bar.thumbnailSource
             cache: false

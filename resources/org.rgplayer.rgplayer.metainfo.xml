@@ -25,7 +25,7 @@
     </ul>
   </description>
 
-  <launchable type="desktop-id">rgplayer.desktop</launchable>
+  <launchable type="desktop-id">org.rgplayer.rgplayer.desktop</launchable>
 
   <url type="homepage">https://github.com/ramoants254/rgplayer</url>
   <url type="bugtracker">https://github.com/ramoants254/rgplayer/issues</url>

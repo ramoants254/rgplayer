@@ -63,9 +63,9 @@ install(TARGETS rgplayer
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-install(FILES resources/rgplayer.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
-install(FILES resources/rgplayer.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps)
-install(FILES resources/rgplayer.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/mime/packages)
+install(FILES resources/rgplayer.desktop RENAME org.rgplayer.rgplayer.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+install(FILES resources/rgplayer.svg RENAME org.rgplayer.rgplayer.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps)
+install(FILES resources/rgplayer.xml RENAME org.rgplayer.rgplayer.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/mime/packages)
 install(FILES resources/org.rgplayer.rgplayer.metainfo.xml
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
 

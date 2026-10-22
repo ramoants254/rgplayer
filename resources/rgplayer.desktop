@@ -2,7 +2,7 @@
 Name=rgplayer
 Comment=Keyboard-driven media player
 Exec=rgplayer %U
-Icon=rgplayer
+Icon=org.rgplayer.rgplayer
 Terminal=false
 Type=Application
 Categories=AudioVideo;Player;Qt;
