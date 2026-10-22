@@ -346,6 +346,9 @@ Rectangle {
                         Label { color: Theme.accent; font.bold: true; text: "O / Ctrl+O" }
                         Label { color: Theme.text; text: qsTr("Open File Dialog") }
 
+                        Label { color: Theme.accent; font.bold: true; text: "F1" }
+                        Label { color: Theme.text; text: qsTr("Help & Keyboard Shortcuts") }
+
                         Label { color: Theme.accent; font.bold: true; text: "Esc" }
                         Label { color: Theme.text; text: qsTr("Close Drawer / Exit Fullscreen") }
                     }

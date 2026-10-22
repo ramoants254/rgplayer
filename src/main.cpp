@@ -1,3 +1,5 @@
+#include <QCommandLineParser>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QIcon>
 #include <QQmlContext>
@@ -27,6 +29,13 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon::fromTheme(QStringLiteral("rgplayer"),
                                        QIcon(QStringLiteral(":/qt/qml/Rgplayer/resources/rgplayer.svg"))));
 
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QStringLiteral("rgplayer - Fast, modern Linux media player"));
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument(QStringLiteral("media"), QStringLiteral("Media file or folder to open and play."));
+    parser.process(app);
+
     MpvWrapper mpv;
     PlayerController playerController(&mpv);
     PlaylistModel playlistModel;
@@ -49,9 +58,19 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
 
     engine.loadFromModule(QStringLiteral("Rgplayer"), QStringLiteral("Main"));
-    if (argc > 1) {
-        playlistModel.addFile(QString::fromLocal8Bit(argv[1]));
-        playerController.openFile(QString::fromLocal8Bit(argv[1]));
+
+    const QStringList positionalArgs = parser.positionalArguments();
+    for (const QString &arg : positionalArgs) {
+        if (!arg.startsWith(QLatin1Char('-')) && QFileInfo::exists(arg)) {
+            playlistModel.addFile(arg);
+        }
     }
+    if (!positionalArgs.isEmpty()) {
+        const QString firstFile = positionalArgs.first();
+        if (!firstFile.startsWith(QLatin1Char('-')) && QFileInfo::exists(firstFile)) {
+            playerController.openFile(firstFile);
+        }
+    }
+
     return app.exec();
 }

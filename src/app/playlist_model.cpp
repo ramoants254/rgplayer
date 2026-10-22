@@ -6,8 +6,16 @@
 
 PlaylistModel::PlaylistModel(QObject *parent)
     : QAbstractListModel(parent)
-    , paths_(QSettings().value(QStringLiteral("playlist/paths")).toStringList())
 {
+    const QStringList saved = QSettings().value(QStringLiteral("playlist/paths")).toStringList();
+    for (const QString &p : saved) {
+        if (!p.startsWith(QLatin1Char('-')) && QFileInfo::exists(p)) {
+            paths_.append(p);
+        }
+    }
+    if (paths_.size() != saved.size()) {
+        save();
+    }
 }
 
 int PlaylistModel::rowCount(const QModelIndex &parent) const

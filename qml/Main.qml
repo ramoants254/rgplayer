@@ -284,6 +284,16 @@ ApplicationWindow {
     }
 
     Shortcut {
+        sequence: "F1"
+        context: Qt.ApplicationShortcut
+        onActivated: {
+            window.settingsVisible = !window.settingsVisible
+            if (window.settingsVisible)
+                osd.showMessage(qsTr("Help & Shortcuts"))
+        }
+    }
+
+    Shortcut {
         sequence: "Escape"
         context: Qt.ApplicationShortcut
         onActivated: {
@@ -456,10 +466,7 @@ ApplicationWindow {
         radius: 16
         z: 2
         visible: playerController.duration > 0 && isAudioFile(playerController.currentFile)
-        opacity: (playbackBar.revealed || window.playlistVisible || window.settingsVisible) ? 1.0 : 0.0
-        Behavior on opacity {
-            NumberAnimation { duration: appSettings.reduceMotion ? 0 : 250 }
-        }
+        opacity: 1.0
 
         ColumnLayout {
             anchors.centerIn: parent

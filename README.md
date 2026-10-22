@@ -12,23 +12,21 @@ A fast, modern, and lightweight Linux media player with a sleek dark aesthetic, 
 ## Highlights
 
 - **Hardware-Accelerated Playback**: Powered by `libmpv` and FFmpeg with OpenGL rendering and hardware decoding support (VA-API, NVDEC, etc.).
-- **Modern Dark UI**: Fluid, responsive interface built with Qt Quick and QML, featuring semi-transparent gradient overlays and auto-hiding controls.
+- **Modern Dark UI**: Fluid, responsive interface built with Qt Quick and QML, featuring semi-transparent dark glass overlays and auto-hiding controls.
+- **Dedicated Audio & Music Mode**: Sleek album player card with rotating vinyl record and dynamic sound visualizer bars during music playback.
 - **Power-User Controls**:
   - Precise seeking with hover thumbnail previews.
   - Variable speed playback (0.25x to 4.0x).
   - A-B loop repetition.
   - Frame-by-frame stepping.
   - Multi-track audio and subtitle selection.
+- **Playlist & Folder Drag-and-Drop**:
+  - Drag and drop single files, multiple files, or whole music/video folders to queue and play.
+  - Persistent playlist remembering your tracks across sessions.
 - **Desktop Integration**:
   - **MPRIS2** D-Bus interface for OS-level media keys, lock screen integration, and desktop control applets.
   - Automatic screensaver and sleep inhibition during active playback.
 - **Lightweight & Keyboard-First**: Designed for instant response and smooth workflow with keyboard shortcuts.
-
----
-
-## Screenshots
-
-> *Dark minimalist player with floating controls and hover seek preview.*
 
 ---
 
@@ -38,25 +36,47 @@ A fast, modern, and lightweight Linux media player with a sleek dark aesthetic, 
 |---|---|
 | `Space` | Play / Pause |
 | `Left` / `Right` | Seek backward / forward (5 seconds) |
-| `Shift + Left` / `Shift + Right` | Seek backward / forward (1 second) |
+| `Shift + Left` / `Shift + Right` | Precise seek backward / forward (1 second) |
 | `Up` / `Down` | Volume up / down (5%) |
 | `M` | Toggle mute |
 | `F` / `Double Click` | Toggle fullscreen |
-| `[` / `]` | Decrease / increase playback speed |
-| `Backspace` | Reset speed to 1.0x |
+| `[` / `]` | Decrease / increase playback speed (0.25x steps) |
+| `Backspace` | Reset playback speed to 1.0x |
 | `.` *(period)* | Next frame (frame step) |
 | `,` *(comma)* | Previous frame (frame step) |
-| `L` | Set / Clear A-B repeat loop |
-| `O` | Open file dialog |
+| `N` / `B` | Next / Previous track in playlist |
+| `L` | Set / Clear A-B repeat loop (`A` &rarr; `B` &rarr; `Clear`) |
+| `O` / `Ctrl+O` | Open file dialog |
 | `P` | Toggle playlist drawer |
-| `S` | Open settings |
-| `Esc` | Exit fullscreen |
+| `S` / `Ctrl+,` | Toggle settings & adjustments drawer |
+| `F1` | Help & Keyboard shortcuts reference |
+| `Esc` | Close open drawer / Exit fullscreen |
 
 ---
 
-## Prerequisites & Dependencies
+## Installation via Flatpak
 
-To build `rgplayer`, ensure you have the following installed:
+`rgplayer` is fully packaged as a standalone Flatpak adhering to FreeDesktop and AppStream standards.
+
+### Build & Install Locally:
+```bash
+flatpak-builder --user --install --force-clean build-flatpak packaging/org.rgplayer.rgplayer.yml
+```
+
+### Run Flatpak:
+```bash
+# Launch empty player:
+flatpak run org.rgplayer.rgplayer
+
+# Launch directly with a video or audio file / folder:
+flatpak run org.rgplayer.rgplayer /path/to/media.mp4
+```
+
+---
+
+## Native Build Prerequisites & Dependencies
+
+If you prefer building natively outside Flatpak:
 
 ### Ubuntu / Debian (24.04+)
 ```bash
@@ -101,7 +121,7 @@ sudo pacman -S --needed \
 
 ---
 
-## Building & Running
+## Native Building & Running
 
 ### 1. Configure the build
 ```bash
@@ -115,8 +135,7 @@ cmake --build build --parallel
 
 ### 3. Run
 ```bash
-# Launch player empty or open directly with a file:
-./build/rgplayer path/to/video.mp4
+./build/rgplayer path/to/media.mp4
 ```
 
 ---

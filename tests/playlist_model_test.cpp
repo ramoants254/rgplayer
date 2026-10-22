@@ -1,3 +1,4 @@
+#include <QFile>
 #include <QSignalSpy>
 #include <QSettings>
 #include <QTest>
@@ -13,6 +14,22 @@ private slots:
     {
         QSettings settings;
         settings.clear();
+        QFile f1(QStringLiteral("/tmp/one.mp4"));
+        if (f1.open(QIODevice::WriteOnly)) {
+            f1.write("mock");
+            f1.close();
+        }
+        QFile f2(QStringLiteral("/tmp/two.mkv"));
+        if (f2.open(QIODevice::WriteOnly)) {
+            f2.write("mock");
+            f2.close();
+        }
+    }
+
+    void cleanup()
+    {
+        QFile::remove(QStringLiteral("/tmp/one.mp4"));
+        QFile::remove(QStringLiteral("/tmp/two.mkv"));
     }
 
     void addsUniqueFilesAndExposesRoles()
