@@ -62,6 +62,30 @@ Rectangle {
                     drawer.playlist.removeAt(currentIndex)
                 }
             }
+            Keys.onUpPressed: function(event) {
+                if (event.modifiers & Qt.AltModifier) {
+                    if (currentIndex > 0) {
+                        const target = currentIndex - 1
+                        drawer.playlist.move(currentIndex, target)
+                        currentIndex = target
+                        event.accepted = true
+                    }
+                } else {
+                    event.accepted = false
+                }
+            }
+            Keys.onDownPressed: function(event) {
+                if (event.modifiers & Qt.AltModifier) {
+                    if (currentIndex >= 0 && currentIndex < count - 1) {
+                        const target = currentIndex + 1
+                        drawer.playlist.move(currentIndex, target)
+                        currentIndex = target
+                        event.accepted = true
+                    }
+                } else {
+                    event.accepted = false
+                }
+            }
 
             delegate: Rectangle {
                 id: itemDelegate
@@ -139,6 +163,66 @@ Rectangle {
                         elide: Text.ElideRight
                     }
 
+                    // Move up button
+                    Rectangle {
+                        Layout.preferredWidth: 20
+                        Layout.preferredHeight: 20
+                        radius: 10
+                        color: upMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : "transparent"
+                        visible: (mouseArea.containsMouse || itemDelegate.isSelected) && itemDelegate.index > 0
+                        Accessible.name: qsTr("Move item up")
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: "▲"
+                            color: upMouse.containsMouse ? Theme.accent : Theme.textMuted
+                            font.pixelSize: 9
+                        }
+
+                        MouseArea {
+                            id: upMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                const cur = itemDelegate.index
+                                drawer.playlist.move(cur, cur - 1)
+                                list.currentIndex = cur - 1
+                                list.forceActiveFocus()
+                            }
+                        }
+                    }
+
+                    // Move down button
+                    Rectangle {
+                        Layout.preferredWidth: 20
+                        Layout.preferredHeight: 20
+                        radius: 10
+                        color: downMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : "transparent"
+                        visible: (mouseArea.containsMouse || itemDelegate.isSelected) && itemDelegate.index < list.count - 1
+                        Accessible.name: qsTr("Move item down")
+
+                        Label {
+                            anchors.centerIn: parent
+                            text: "▼"
+                            color: downMouse.containsMouse ? Theme.accent : Theme.textMuted
+                            font.pixelSize: 9
+                        }
+
+                        MouseArea {
+                            id: downMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                const cur = itemDelegate.index
+                                drawer.playlist.move(cur, cur + 1)
+                                list.currentIndex = cur + 1
+                                list.forceActiveFocus()
+                            }
+                        }
+                    }
+
                     // Remove item button
                     Rectangle {
                         Layout.preferredWidth: 22
@@ -146,6 +230,7 @@ Rectangle {
                         radius: 11
                         color: delMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : "transparent"
                         visible: mouseArea.containsMouse || itemDelegate.isSelected
+                        Accessible.name: qsTr("Remove item from playlist")
 
                         Label {
                             anchors.centerIn: parent

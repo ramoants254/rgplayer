@@ -24,12 +24,18 @@ private slots:
             f2.write("mock");
             f2.close();
         }
+        QFile f3(QStringLiteral("/tmp/three.mp4"));
+        if (f3.open(QIODevice::WriteOnly)) {
+            f3.write("mock");
+            f3.close();
+        }
     }
 
     void cleanup()
     {
         QFile::remove(QStringLiteral("/tmp/one.mp4"));
         QFile::remove(QStringLiteral("/tmp/two.mkv"));
+        QFile::remove(QStringLiteral("/tmp/three.mp4"));
     }
 
     void addsUniqueFilesAndExposesRoles()
@@ -102,6 +108,39 @@ private slots:
         model.clear();
         QCOMPARE(model.count(), 0);
         QCOMPARE(model.currentIndex(), -1);
+    }
+
+    void moveTracksUpdatesOrderAndCurrentIndex()
+    {
+        PlaylistModel model;
+        model.addFile(QStringLiteral("/tmp/one.mp4"));
+        model.addFile(QStringLiteral("/tmp/two.mkv"));
+        model.addFile(QStringLiteral("/tmp/three.mp4"));
+        model.playAt(0); // Playing one.mp4 at 0
+
+        // Move one.mp4 from 0 to 2 -> order becomes two, three, one
+        model.move(0, 2);
+        QCOMPARE(model.getPath(0), QStringLiteral("/tmp/two.mkv"));
+        QCOMPARE(model.getPath(1), QStringLiteral("/tmp/three.mp4"));
+        QCOMPARE(model.getPath(2), QStringLiteral("/tmp/one.mp4"));
+        // currentIndex should follow one.mp4 to 2
+        QCOMPARE(model.currentIndex(), 2);
+
+        // Move three.mp4 from 1 to 0 -> order becomes three, two, one
+        model.move(1, 0);
+        QCOMPARE(model.getPath(0), QStringLiteral("/tmp/three.mp4"));
+        QCOMPARE(model.getPath(1), QStringLiteral("/tmp/two.mkv"));
+        QCOMPARE(model.getPath(2), QStringLiteral("/tmp/one.mp4"));
+        // one.mp4 was at 2, didn't move relative to the swap above it
+        QCOMPARE(model.currentIndex(), 2);
+
+        // Move three.mp4 from 0 to 2 -> order becomes two, one, three
+        // currentIndex (one.mp4 at 2) should shift down to 1
+        model.move(0, 2);
+        QCOMPARE(model.getPath(0), QStringLiteral("/tmp/two.mkv"));
+        QCOMPARE(model.getPath(1), QStringLiteral("/tmp/one.mp4"));
+        QCOMPARE(model.getPath(2), QStringLiteral("/tmp/three.mp4"));
+        QCOMPARE(model.currentIndex(), 1);
     }
 };
 

@@ -104,6 +104,33 @@ void PlaylistModel::removeAt(int index)
     save();
 }
 
+void PlaylistModel::move(int from, int to)
+{
+    if (from < 0 || from >= paths_.size() || to < 0 || to >= paths_.size() || from == to) {
+        return;
+    }
+
+    const int destination = to > from ? to + 1 : to;
+    if (!beginMoveRows({}, from, from, {}, destination)) {
+        return;
+    }
+
+    paths_.move(from, to);
+    endMoveRows();
+
+    if (currentIndex_ == from) {
+        currentIndex_ = to;
+        emit currentIndexChanged();
+    } else if (from < currentIndex_ && to >= currentIndex_) {
+        --currentIndex_;
+        emit currentIndexChanged();
+    } else if (from > currentIndex_ && to <= currentIndex_) {
+        ++currentIndex_;
+        emit currentIndexChanged();
+    }
+    save();
+}
+
 void PlaylistModel::clear()
 {
     if (paths_.isEmpty()) {

@@ -24,6 +24,7 @@ public:
 
     Q_INVOKABLE void addFile(const QString &path);
     Q_INVOKABLE void removeAt(int index);
+    Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void clear();
     Q_INVOKABLE void playAt(int index);
     Q_INVOKABLE void playNext();
