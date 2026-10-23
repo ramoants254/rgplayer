@@ -12,17 +12,18 @@ A fast, modern, and lightweight Linux media player with a sleek dark aesthetic, 
 ## Highlights
 
 - **Hardware-Accelerated Playback**: Powered by `libmpv` and FFmpeg with OpenGL rendering and hardware decoding support (VA-API, NVDEC, etc.).
-- **Modern Dark UI**: Fluid, responsive interface built with Qt Quick and QML, featuring semi-transparent dark glass overlays and auto-hiding controls.
+- **Modern Dark UI**: Fluid, responsive interface built with Qt Quick and QML, featuring semi-transparent dark glass overlays, orange accents, and auto-hiding controls.
+- **Right-Click Context Menu**: Quick access to aspect ratio overrides (16:9, 4:3, 2.35:1, 1:1), speed adjustments, audio/subtitle tracks, and screenshot capture.
+- **Mini Player (Picture-in-Picture) Mode**: Floating always-on-top compact window with hover-revealed playback and seek controls.
+- **Playback Resume & Recent Files**: Remembers your exact timestamp on exit and resumes smoothly; recent files list on the welcome screen for instant reopening.
 - **Dedicated Audio & Music Mode**: Sleek album player card with rotating vinyl record and dynamic sound visualizer bars during music playback.
-- **Power-User Controls**:
-  - Precise seeking with hover thumbnail previews.
-  - Variable speed playback (0.25x to 4.0x).
-  - A-B loop repetition.
-  - Frame-by-frame stepping.
-  - Multi-track audio and subtitle selection.
-- **Playlist & Folder Drag-and-Drop**:
+- **Media Information Inspector**: Detailed dialog showing video/audio codecs, resolution, framerate, bitrates, and hardware decoding status.
+- **Playlist Management & Reordering**:
+  - Single-click to select, double-click or Enter to play.
+  - Reorder tracks with Up/Down buttons or `Alt+Up` / `Alt+Down` shortcuts.
   - Drag and drop single files, multiple files, or whole music/video folders to queue and play.
   - Persistent playlist remembering your tracks across sessions.
+- **Video & Audio Adjustments**: Real-time brightness, contrast, and saturation sliders, deband and sharpen video filters, audio equalizer presets (Flat, Voice, Bass Boost), and loudness normalization.
 - **Desktop Integration**:
   - **MPRIS2** D-Bus interface for OS-level media keys, lock screen integration, and desktop control applets.
   - Automatic screensaver and sleep inhibition during active playback.
@@ -38,19 +39,24 @@ A fast, modern, and lightweight Linux media player with a sleek dark aesthetic, 
 | `Left` / `Right` | Seek backward / forward (5 seconds) |
 | `Shift + Left` / `Shift + Right` | Precise seek backward / forward (1 second) |
 | `Up` / `Down` | Volume up / down (5%) |
-| `M` | Toggle mute |
+| `M` | Toggle Mini Player (Picture-in-Picture) mode |
+| `I` | Toggle Media Information dialog |
 | `F` / `Double Click` | Toggle fullscreen |
 | `[` / `]` | Decrease / increase playback speed (0.25x steps) |
 | `Backspace` | Reset playback speed to 1.0x |
 | `.` *(period)* | Next frame (frame step) |
 | `,` *(comma)* | Previous frame (frame step) |
 | `N` / `B` | Next / Previous track in playlist |
+| `Alt + Up` / `Alt + Down` | Reorder selected track up / down in playlist |
+| `Enter` / `Return` | Play selected track in playlist |
+| `Delete` | Remove selected track from playlist |
+| `Right Click` | Open Context Menu (Aspect ratio, Speed, Tracks, Info) |
 | `L` | Set / Clear A-B repeat loop (`A` &rarr; `B` &rarr; `Clear`) |
 | `O` / `Ctrl+O` | Open file dialog |
 | `P` | Toggle playlist drawer |
 | `S` / `Ctrl+,` | Toggle settings & adjustments drawer |
 | `F1` | Help & Keyboard shortcuts reference |
-| `Esc` | Close open drawer / Exit fullscreen |
+| `Esc` | Close dialog / drawer / exit fullscreen or mini player |
 
 ---
 

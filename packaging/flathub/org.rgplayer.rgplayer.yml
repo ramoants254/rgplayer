@@ -86,5 +86,4 @@ modules:
     sources:
       - type: git
         url: https://github.com/ramoants254/rgplayer.git
-        tag: v0.1.0
-        commit: d82d1e9739c05d40df4562b1d938ea892fa9e051
+        tag: v0.2.0
