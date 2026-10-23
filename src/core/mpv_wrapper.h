@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariantMap>
 
 struct mpv_handle;
 struct mpv_render_context;
@@ -24,6 +25,8 @@ public:
                              void *callbackContext);
     void freeRenderContext();
     bool renderToFramebuffer(unsigned int framebuffer, int width, int height);
+    QString getPropertyString(const char *property) const;
+    QVariantMap mediaInfo() const;
 
 public slots:
     void openFile(const QString &path);

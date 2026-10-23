@@ -294,10 +294,23 @@ ApplicationWindow {
     }
 
     Shortcut {
+        sequence: "I"
+        context: Qt.ApplicationShortcut
+        onActivated: {
+            if (mediaInfoDialog.visible)
+                mediaInfoDialog.close()
+            else
+                mediaInfoDialog.open()
+        }
+    }
+
+    Shortcut {
         sequence: "Escape"
         context: Qt.ApplicationShortcut
         onActivated: {
-            if (window.playlistVisible)
+            if (mediaInfoDialog.visible)
+                mediaInfoDialog.close()
+            else if (window.playlistVisible)
                 window.playlistVisible = false
             else if (window.settingsVisible)
                 window.settingsVisible = false
@@ -360,6 +373,12 @@ ApplicationWindow {
 
     VideoContextMenu {
         id: videoMenu
+        controller: playerController
+        onMediaInfoRequested: mediaInfoDialog.open()
+    }
+
+    MediaInfoDialog {
+        id: mediaInfoDialog
         controller: playerController
     }
 

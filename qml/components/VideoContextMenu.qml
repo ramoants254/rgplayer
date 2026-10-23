@@ -5,6 +5,7 @@ Menu {
     id: contextMenu
 
     property var controller
+    signal mediaInfoRequested()
 
     // Shared styling for all menu items
     palette.window: Theme.surface
@@ -191,6 +192,29 @@ Menu {
         Accessible.name: qsTr("Screenshot")
         text: qsTr("📸  Screenshot")
         onTriggered: contextMenu.controller.screenshot()
+
+        background: Rectangle {
+            color: parent.highlighted ? Qt.rgba(1, 0.42, 0, 0.18) : "transparent"
+            radius: 4
+        }
+        contentItem: Label {
+            text: parent.text
+            color: parent.highlighted ? Theme.accent : Theme.text
+            font.pixelSize: 13
+            leftPadding: 12
+            verticalAlignment: Text.AlignVCenter
+        }
+    }
+
+    MenuSeparator {
+        contentItem: Rectangle { implicitHeight: 1; color: Theme.border }
+    }
+
+    // ── Media Information ───────────────────────────────────────────────────
+    MenuItem {
+        Accessible.name: qsTr("Media Information")
+        text: qsTr("ℹ️   Media Information")
+        onTriggered: contextMenu.mediaInfoRequested()
 
         background: Rectangle {
             color: parent.highlighted ? Qt.rgba(1, 0.42, 0, 0.18) : "transparent"

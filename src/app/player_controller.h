@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QVariantMap>
 
 class QTimer;
 
@@ -62,6 +63,7 @@ public:
     Q_INVOKABLE void setNormalizationEnabled(bool enabled);
     Q_INVOKABLE void setVideoFilterPreset(const QString &preset);
     Q_INVOKABLE void setAspectRatio(const QString &ratio);
+    Q_INVOKABLE QVariantMap mediaInfo() const;
     void setVolume(double volume);
     void setSpeed(double speed);
 

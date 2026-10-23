@@ -282,6 +282,50 @@ void MpvWrapper::setStringProperty(const char *property, const QString &value)
     sendCommand(arguments);
 }
 
+QString MpvWrapper::getPropertyString(const char *property) const
+{
+    if (handle_ == nullptr) {
+        return {};
+    }
+    char *val = mpv_get_property_string(handle_, property);
+    if (val == nullptr) {
+        return {};
+    }
+    const QString result = QString::fromUtf8(val);
+    mpv_free(val);
+    return result;
+}
+
+QVariantMap MpvWrapper::mediaInfo() const
+{
+    QVariantMap info;
+    if (handle_ == nullptr) {
+        return info;
+    }
+
+    auto addProp = [this, &info](const QString &key, const char *prop) {
+        const QString val = getPropertyString(prop);
+        if (!val.isEmpty()) {
+            info.insert(key, val);
+        }
+    };
+
+    addProp(QStringLiteral("videoCodec"), "video-codec");
+    addProp(QStringLiteral("audioCodec"), "audio-codec");
+    addProp(QStringLiteral("width"), "video-params/w");
+    addProp(QStringLiteral("height"), "video-params/h");
+    addProp(QStringLiteral("fps"), "container-fps");
+    addProp(QStringLiteral("videoBitrate"), "video-bitrate");
+    addProp(QStringLiteral("audioBitrate"), "audio-bitrate");
+    addProp(QStringLiteral("sampleRate"), "audio-params/samplerate");
+    addProp(QStringLiteral("channels"), "audio-params/channel-count");
+    addProp(QStringLiteral("fileSize"), "file-size");
+    addProp(QStringLiteral("fileFormat"), "file-format");
+    addProp(QStringLiteral("hwdec"), "hwdec-current");
+
+    return info;
+}
+
 void MpvWrapper::processEvents()
 {
     if (handle_ == nullptr) {

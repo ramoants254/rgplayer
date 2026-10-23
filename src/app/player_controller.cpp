@@ -381,6 +381,18 @@ void PlayerController::setAspectRatio(const QString &ratio)
     }
 }
 
+QVariantMap PlayerController::mediaInfo() const
+{
+    QVariantMap info = (mpv_ != nullptr) ? mpv_->mediaInfo() : QVariantMap();
+    info.insert(QStringLiteral("filePath"), currentFile_);
+    info.insert(QStringLiteral("fileName"),
+                currentFile_.isEmpty()
+                    ? QString()
+                    : currentFile_.mid(currentFile_.lastIndexOf(QLatin1Char('/')) + 1));
+    info.insert(QStringLiteral("duration"), duration_);
+    return info;
+}
+
 QStringList PlayerController::recentFiles() const
 {
     QSettings settings;
