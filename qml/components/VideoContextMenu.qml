@@ -6,6 +6,7 @@ Menu {
 
     property var controller
     signal mediaInfoRequested()
+    signal miniPlayerRequested()
 
     // Shared styling for all menu items
     palette.window: Theme.surface
@@ -208,6 +209,25 @@ Menu {
 
     MenuSeparator {
         contentItem: Rectangle { implicitHeight: 1; color: Theme.border }
+    }
+
+    // ── Mini Player ─────────────────────────────────────────────────────────
+    MenuItem {
+        Accessible.name: qsTr("Toggle mini player mode")
+        text: qsTr("🗖   Mini Player (M)")
+        onTriggered: contextMenu.miniPlayerRequested()
+
+        background: Rectangle {
+            color: parent.highlighted ? Qt.rgba(1, 0.42, 0, 0.18) : "transparent"
+            radius: 4
+        }
+        contentItem: Label {
+            text: parent.text
+            color: parent.highlighted ? Theme.accent : Theme.text
+            font.pixelSize: 13
+            leftPadding: 12
+            verticalAlignment: Text.AlignVCenter
+        }
     }
 
     // ── Media Information ───────────────────────────────────────────────────

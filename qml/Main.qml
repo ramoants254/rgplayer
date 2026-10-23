@@ -10,13 +10,43 @@ ApplicationWindow {
     visible: true
     width: 1280
     height: 720
-    minimumWidth: 800
-    minimumHeight: 480
+    minimumWidth: isMiniPlayer ? 240 : 800
+    minimumHeight: isMiniPlayer ? 135 : 480
     title: qsTr("rgplayer")
     color: Theme.bg
+    flags: isMiniPlayer ? (Qt.Window | Qt.WindowStaysOnTopHint) : Qt.Window
 
     property bool settingsVisible: false
     property bool playlistVisible: false
+    property bool isMiniPlayer: false
+    property real savedWidth: 1280
+    property real savedHeight: 720
+    property real savedX: 100
+    property real savedY: 100
+
+    function toggleMiniPlayer() {
+        if (!isMiniPlayer) {
+            savedWidth = window.width
+            savedHeight = window.height
+            savedX = window.x
+            savedY = window.y
+            window.playlistVisible = false
+            window.settingsVisible = false
+            if (mediaInfoDialog.visible)
+                mediaInfoDialog.close()
+            isMiniPlayer = true
+            window.width = 360
+            window.height = 202
+            osd.showMessage(qsTr("Mini Player Mode"))
+        } else {
+            isMiniPlayer = false
+            window.width = Math.max(800, savedWidth)
+            window.height = Math.max(480, savedHeight)
+            window.x = savedX
+            window.y = savedY
+            osd.showMessage(qsTr("Standard Mode"))
+        }
+    }
 
     Settings {
         id: appSettings
@@ -305,11 +335,19 @@ ApplicationWindow {
     }
 
     Shortcut {
+        sequence: "M"
+        context: Qt.ApplicationShortcut
+        onActivated: window.toggleMiniPlayer()
+    }
+
+    Shortcut {
         sequence: "Escape"
         context: Qt.ApplicationShortcut
         onActivated: {
             if (mediaInfoDialog.visible)
                 mediaInfoDialog.close()
+            else if (window.isMiniPlayer)
+                window.toggleMiniPlayer()
             else if (window.playlistVisible)
                 window.playlistVisible = false
             else if (window.settingsVisible)
@@ -348,6 +386,7 @@ ApplicationWindow {
     // Window-level mouse tracker: any movement over the video area reveals the bar.
     MouseArea {
         anchors.fill: parent
+        enabled: !window.isMiniPlayer
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         propagateComposedEvents: true
@@ -375,6 +414,7 @@ ApplicationWindow {
         id: videoMenu
         controller: playerController
         onMediaInfoRequested: mediaInfoDialog.open()
+        onMiniPlayerRequested: window.toggleMiniPlayer()
     }
 
     MediaInfoDialog {
@@ -418,7 +458,7 @@ ApplicationWindow {
         color: Theme.surface
         border.color: Theme.border
         radius: Theme.panelRadius
-        visible: playerController.duration <= 0
+        visible: !window.isMiniPlayer && playerController.duration <= 0
         z: 2
 
         ColumnLayout {
@@ -557,7 +597,7 @@ ApplicationWindow {
         border.color: Qt.rgba(1, 1, 1, 0.12)
         radius: 16
         z: 2
-        visible: playerController.duration > 0 && isAudioFile(playerController.currentFile)
+        visible: !window.isMiniPlayer && playerController.duration > 0 && isAudioFile(playerController.currentFile)
         opacity: 1.0
 
         ColumnLayout {
@@ -670,12 +710,177 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         controller: playerController
         reduceMotion: appSettings.reduceMotion
+        visible: !window.isMiniPlayer
         z: 3
         onChooseFileRequested: fileDialog.open()
         onSettingsRequested: window.settingsVisible = true
         onOsdRequested: function(message) { osd.showMessage(message) }
         onPlaylistRequested: window.playlistVisible = true
         onThumbnailRequested: function(position) { thumbnailService.request(playerController.currentFile, position) }
+    }
+
+    // ── Mini Player Hover Overlay ───────────────────────────────
+    Rectangle {
+        id: miniPlayerOverlay
+        anchors.fill: parent
+        z: 3
+        visible: window.isMiniPlayer
+        color: miniMouse.containsMouse ? Qt.rgba(0, 0, 0, 0.5) : "transparent"
+
+        MouseArea {
+            id: miniMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            onClicked: function(mouse) {
+                if (mouse.button === Qt.RightButton) {
+                    videoMenu.popup(mouse.x, mouse.y)
+                } else {
+                    playerController.togglePause()
+                }
+            }
+            onDoubleClicked: function(mouse) {
+                if (mouse.button === Qt.LeftButton) {
+                    window.toggleMiniPlayer()
+                }
+            }
+        }
+
+        // Top bar in mini mode
+        RowLayout {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 8
+            visible: miniMouse.containsMouse
+
+            Label {
+                Layout.fillWidth: true
+                text: playerController.currentFile ? playerController.currentFile.substring(playerController.currentFile.lastIndexOf('/') + 1) : qsTr("rgplayer")
+                color: Theme.text
+                font.pixelSize: 11
+                font.weight: Font.Medium
+                elide: Text.ElideRight
+            }
+
+            Rectangle {
+                width: 22
+                height: 22
+                radius: 4
+                color: restoreMouse.containsMouse ? Theme.surfaceRaised : Qt.rgba(0, 0, 0, 0.6)
+                Accessible.name: qsTr("Exit mini player mode")
+
+                Label {
+                    anchors.centerIn: parent
+                    text: "🗗"
+                    color: restoreMouse.containsMouse ? Theme.accent : Theme.text
+                    font.pixelSize: 11
+                }
+
+                MouseArea {
+                    id: restoreMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: window.toggleMiniPlayer()
+                }
+            }
+        }
+
+        // Bottom bar in mini mode
+        ColumnLayout {
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 6
+            spacing: 2
+            visible: miniMouse.containsMouse
+
+            // Slim progress seekbar
+            Slider {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 14
+                from: 0
+                to: Math.max(1, playerController.duration)
+                value: playerController.position
+                onMoved: playerController.seek(value)
+
+                background: Rectangle {
+                    x: parent.leftPadding
+                    y: parent.topPadding + parent.availableHeight / 2 - height / 2
+                    width: parent.availableWidth
+                    height: 3
+                    radius: 1.5
+                    color: Qt.rgba(1, 1, 1, 0.3)
+
+                    Rectangle {
+                        width: parent.width * (playerController.duration > 0 ? playerController.position / playerController.duration : 0)
+                        height: parent.height
+                        color: Theme.accent
+                        radius: 1.5
+                    }
+                }
+
+                handle: Rectangle {
+                    x: parent.leftPadding + parent.visualPosition * (parent.availableWidth - width)
+                    y: parent.topPadding + parent.availableHeight / 2 - height / 2
+                    width: 8
+                    height: 8
+                    radius: 4
+                    color: Theme.accent
+                }
+            }
+
+            // Compact controls
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 12
+
+                Label {
+                    text: "⏮"
+                    color: prevMouse.containsMouse ? Theme.accent : Theme.text
+                    font.pixelSize: 12
+                    Accessible.name: qsTr("Previous track")
+                    MouseArea {
+                        id: prevMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: playlistModel.playPrevious()
+                    }
+                }
+
+                Label {
+                    text: playerController.paused ? "▶" : "⏸"
+                    color: playMiniMouse.containsMouse ? Theme.accent : Theme.text
+                    font.pixelSize: 14
+                    font.weight: Font.Bold
+                    Accessible.name: playerController.paused ? qsTr("Play") : qsTr("Pause")
+                    MouseArea {
+                        id: playMiniMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: playerController.togglePause()
+                    }
+                }
+
+                Label {
+                    text: "⏭"
+                    color: nextMouse.containsMouse ? Theme.accent : Theme.text
+                    font.pixelSize: 12
+                    Accessible.name: qsTr("Next track")
+                    MouseArea {
+                        id: nextMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: playlistModel.playNext()
+                    }
+                }
+            }
+        }
     }
 
     SettingsPage {
